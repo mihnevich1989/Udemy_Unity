@@ -8,47 +8,48 @@ public class LightChanger : MonoBehaviour
     {
         Blue, Yellow, Red, Purple
     }
-
+    [SerializeField] private Color[] _initialColors;
     [SerializeField] private InitialLight initialLight = InitialLight.Yellow;
-    [SerializeField] private List<Light> _lights;
+    [SerializeField] private Light _light;
     [SerializeField] private Material _lightbulbMaterial;
-
+    [SerializeField] private float _interpolationTime = 1f;
     // Start is called before the first frame update
     void Start()
     {
         Debug.Log(TurnOnInitialLight((int)initialLight));
     }
 
-    private IEnumerator WaitToTurnOnLight(Light light)
+    public void ChangeLightColor(Color color)
     {
-        yield return new WaitForSeconds(1);
+        _light.color = color;
+    }
 
-        for (int i = 0; i < _lights.Count; i++)
+    private IEnumerator WaitToTurnOnLight(Color color)
+    {
+        float t = 0;
+        //yield return new WaitForSeconds(1);
+        Color startColor = _light.color;
+        while (t < 1)
         {
-            _lights[i].gameObject.SetActive(false);
+            Color interpolatedColor = Color.Lerp(startColor, color, t);
+            _lightbulbMaterial.SetColor("_EmissionColor", interpolatedColor);
+            _light.color = interpolatedColor;
+            t += Time.deltaTime / _interpolationTime;
+            yield return null;
         }
-        _lightbulbMaterial.SetColor("_EmissionColor", light.color);
-        light.gameObject.SetActive(true);
+        
     }
 
-    public void AddLightToList(Light light)
+    public void TurnOnLight(Color color)
     {
-        _lights.Add(light);
-    }
-
-    public void TurnOnLight(Light light)
-    {
-        StartCoroutine(WaitToTurnOnLight(light));
+        StartCoroutine(WaitToTurnOnLight(color));
     }
 
     private string TurnOnInitialLight(int lightIndex)
     {
-        for (int i = 0; i < _lights.Count; i++)
-        {
-            _lights[i].gameObject.SetActive(false);
-        }
-        _lights[lightIndex].gameObject.SetActive(true);
-        _lightbulbMaterial.SetColor("_EmissionColor", _lights[lightIndex].color);
+        
+        _light.color = _initialColors[lightIndex];
+        _lightbulbMaterial.SetColor("_EmissionColor", _initialColors[lightIndex]);
 
         return "Light has been turned on!";
     }

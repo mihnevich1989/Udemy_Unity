@@ -16,7 +16,7 @@ public class Portal : MonoBehaviour
         Debug.Log("Player out of portal!");
     }*/
 
-    private Light _lightToTurnOn;
+    private Color _lightColor;
     [SerializeField] private LightChanger _lightChanger;
 
     private void Awake()
@@ -24,9 +24,9 @@ public class Portal : MonoBehaviour
         _lightChanger = FindObjectOfType<LightChanger>();
     }
 
-    public void SetLightToTurnOn(Light light)
+    public void SetLightColor(Color color)
     {
-        _lightToTurnOn = light;
+        _lightColor = color;
     }
 
     ///Когда мы находимся в триггер
@@ -38,7 +38,7 @@ public class Portal : MonoBehaviour
         ///other.gameObject.layer == LayerMask.NameToLayer("Player")
         if (other.GetComponent<FPSController>() != null)
         {
-            _lightChanger.TurnOnLight(_lightToTurnOn);
+            _lightChanger.TurnOnLight(_lightColor);
         }
     }
 
